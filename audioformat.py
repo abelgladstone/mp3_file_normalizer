@@ -9,6 +9,8 @@ def convert_to_float32(data: np.ndarray) -> np.ndarray:
         return np.float32(data) / 2147483648.0
     elif data.dtype == np.float32:
         return data
+    elif data.dtype == np.float64:
+        return np.float32(data) / float(np.iinfo(np.int32).max)
     else:
         raise TypeError(f"Unsupported data type: {data.dtype}")
 
@@ -19,7 +21,9 @@ def convert_to_int16(data: np.ndarray) -> np.ndarray:
     elif data.dtype == np.int32:
         return np.int16(data >> 16)
     elif data.dtype == np.float32:
-        return np.int16(data * 32768.0)
+        return np.int16(data * 32767.0)
+    elif data.dtype == np.float64:
+        return np.int16(data * 32767.0)
     else:
         raise TypeError(f"Unsupported data type: {data.dtype}")
 
@@ -30,7 +34,9 @@ def convert_to_int32(data: np.ndarray) -> np.ndarray:
     elif data.dtype == np.int32:
         return data
     elif data.dtype == np.float32:
-        return np.int32(data * 2147483648.0)
+        return np.int32(data * 2147483647.0)
+    elif data.dtype == np.float64:
+        return np.int32(data * 2147483647.0)
     else:
         raise TypeError(f"Unsupported data type: {data.dtype}")
 

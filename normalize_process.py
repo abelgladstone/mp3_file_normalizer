@@ -29,12 +29,12 @@ def normalize_wavefile(input_wavefile, target_volume_db=-3):
 
 class Normalize(Effect):
 
-    def __init__(self, target_volume_db=-3):
-        self.target_volume_db = target_volume_db
-        self._linear_gain = 10 ** (self.target_volume_db / 20)
+    def __init__(self, target_db=-3):
+        self.target_db = target_db
+        self._linear_gain = 10 ** (self.target_db / 20)
     
     def __str__(self):
-        return f"Normalize({self.target_volume_db} dbFS)"
+        return f"Normalize({self.target_db} dbFS)"
 
     def apply_effect(self, data: np.ndarray) -> np.ndarray:
         # normalize the data

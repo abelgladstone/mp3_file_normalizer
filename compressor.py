@@ -34,9 +34,10 @@ class Compressor(Effect):
     release_msec: float
     threshold_db: float
     ratio: int
-    knee_db: int
-    detector_type: DetectorType = DetectorType.SMOOTH_PEAK
+    knee_db: float
+    makeup_gain_db:float = 0
     sample_rate: int = 44100
+    detector_type: DetectorType = DetectorType.SMOOTH_PEAK
     prev_data: float = field(init=False)
 
     def __post_init__(self):
@@ -54,7 +55,7 @@ class Compressor(Effect):
         self.detector = self.detector_class(self.sample_rate, self.attack_msec/1000, self.release_msec/1000)
     
     def envelope(self, data: np.ndarray):
-        return self.detector.apply(data)
+        return self.detector.apply_effect(data)
     
     def gain(self, envelope: np.ndarray):
         # Computer the gain from the envelope and return the array of gains
@@ -74,4 +75,4 @@ class Compressor(Effect):
     def apply_effect(self, data: np.ndarray) -> np.ndarray:
         envelope = self.envelope(data)
         gain = self.gain(envelope)
-        return gain * data
+        return gain * data * 10**(self.makeup_gain_db/20)

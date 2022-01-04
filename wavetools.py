@@ -5,18 +5,18 @@ import numpy as np
 
 class BufferedWaveReader:
 
-    def __init__(self, wave_file: pathlib.Path, chunk_size: int = None) -> None:
+    def __init__(self, wave_file: str, chunk_size: int = None) -> None:
         self.wave_file = wave_file
+        self.read_data()
         self.chunk_size = chunk_size if chunk_size else len(self)
         # check that the file exists and is a wave file
-        if not wave_file.exists():
+        if not pathlib.Path(self.wave_file).exists():
             raise FileNotFoundError(f"{wave_file} does not exist")
-        if wave_file.suffix != ".wav":
+        if pathlib.Path(self.wave_file).suffix != ".wav":
             raise ValueError(f"{wave_file} is not a wave file")
-        self.read_data()
     
     # a method to return the sample rate
-    def sample_rate(self):
+    def sample_rate(self)->int:
         return wavfile.read(self.wave_file)[0]
     
     def read_data(self):
@@ -50,8 +50,7 @@ class BufferedWaveWriter:
         self.data = np.array([])
 
     def write(self):
-        data = np.concatenate(self.data)
-        wavfile.write(self.wave_file, self.sample_rate, data)
+        wavfile.write(self.wave_file, self.sample_rate, self.data)
         self.data = []
     
     def append(self, data: np.ndarray):
