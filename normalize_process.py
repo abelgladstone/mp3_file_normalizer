@@ -29,41 +29,16 @@ def normalize_wavefile(input_wavefile, target_volume_db=-3):
 
 class Normalize(Effect):
 
-    def __init__(self, target_volume_db=-3, output_format='float32'):
+    def __init__(self, target_volume_db=-3):
         self.target_volume_db = target_volume_db
         self._linear_gain = 10 ** (self.target_volume_db / 20)
-        self.output_format = output_format
     
     def __str__(self):
-        return f"Normalize({self.target_volume_db} dbFS {self.output_format})"
-
-    # a method to convert the input data to the output format from float32 to int16 or int32
-    def convert_to_output_data(self, data: np.ndarray) -> np.ndarray:
-        if self.output_format == 'int16':
-            return np.int16(data * 32768)
-        elif self.output_format == 'int32':
-            return np.int32(data * 2147483648)
-        else:
-            return data
-
-    # a method to convert the input data to the output format from int16 to float32
-    def int16_to_float32(self, data: np.ndarray) -> np.ndarray:
-        return np.float32(data) / 32768
-    
-    # a method to convert the input data to the output format from int32 to float32
-    def int32_to_float32(self, data: np.ndarray) -> np.ndarray:
-        return np.float32(data) / 2147483648
+        return f"Normalize({self.target_volume_db} dbFS)"
 
     def apply_effect(self, data: np.ndarray) -> np.ndarray:
-        # convert the data to float32 if it is not already float32
-        if data.dtype == np.int16:
-            data = self.int16_to_float32(data)
-        elif data.dtype == np.int32:
-            data = self.int32_to_float32(data)
         # normalize the data
         normalized_data = data / np.max(np.abs(data)) * self._linear_gain
-        # saturate the data to the range [-1, 1]
-        normalized_data = np.clip(normalized_data, -1, 1)
         # convert the data to the output format
-        return self.convert_to_output_data(normalized_data)
+        return normalized_data
 
