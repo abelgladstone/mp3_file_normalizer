@@ -1,51 +1,7 @@
-import numpy as np
-import scipy.io.wavfile
 import subprocess
 import argparse
 import datetime
 
-#function to export a wave file with a given numpy array, filename and sample rate using scipy
-def export_wave(wave_array, file_name, sample_rate):
-    scipy.io.wavfile.write(file_name, sample_rate, wave_array)
-
-# a function to read a wave file using scipy and convert it to a numpy array as a float data type
-def read_wave(file_name):
-    sample_rate, wave_array = scipy.io.wavfile.read(file_name)
-    return sample_rate, wave_array
-
-# function to normalize a wave file using scipy, to a given volume below 0 dbFS
-# write the normalized wave file to a new file with the same name as the original 
-# file but with _norm.wav appended to the end
-def normalize_wavefile(wave_file_name, target_volume=-3):
-    fs, data = read_wave(wave_file_name)
-    normalized_data = data / np.max(np.abs(data)) * 10 ** (target_volume / 20)
-    #saturate the data to the range [-1, 1]
-    normalized_data = np.clip(normalized_data, -1, 1)
-    # create the new normalized wave file name
-    new_file_name = wave_file_name.split('.')[0] + '_norm.wav'
-    export_wave(normalized_data, new_file_name, fs)
-    return new_file_name
-
-#function to open a subprocess to convert an mp3 file to a wav file using ffmpeg
-def convert_mp3_to_wav(mp3_file_name, output_file_name=None):
-    # create the new wav file name
-    new_file_name = output_file_name if output_file_name else mp3_file_name.split('.')[0] + '.wav'
-    # open the subprocess
-    process = subprocess.Popen(['ffmpeg/bin/ffmpeg.exe', '-i', mp3_file_name, new_file_name, '-hide_banner', '-loglevel', 'panic', '-y'])
-    # wait for the subprocess to finish
-    process.wait()
-    # return the new wav file name
-    return new_file_name
-
-def convert_wav_to_mp3(wav_file_name, output_file_name=None):
-    # create the new mp3 file name 
-    new_file_name = output_file_name if output_file_name else wav_file_name.split('.')[0] + '.mp3'
-    # open the subprocess
-    process = subprocess.Popen(['ffmpeg/bin/ffmpeg.exe', '-i', wav_file_name, new_file_name, '-hide_banner', '-loglevel', 'panic', '-y'])
-    # wait for the subprocess to finish
-    process.wait()
-    # return the new mp3 file name
-    return new_file_name
 
 def get_monday_string():
     # get the date of the next monday from the current date
@@ -53,7 +9,6 @@ def get_monday_string():
     monday = today + datetime.timedelta(days=(7 - today.weekday()))
     # return the monday as a string in yymmdd format
     return monday.strftime('%y%m%d')
-
 
 if __name__ == '__main__':
     # read the mp3 file from argparse 
