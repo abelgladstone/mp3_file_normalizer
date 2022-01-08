@@ -2,6 +2,8 @@ import subprocess
 
 #function to open a subprocess to convert an mp3 file to a wav file using ffmpeg
 def convert_mp3_to_wav(mp3_file_name, output_file_name=None):
+    # print the mp3 file name and the output file name
+    print(f'Converting {mp3_file_name} to {output_file_name}')
     # create the new wav file name
     new_file_name = output_file_name if output_file_name else mp3_file_name.split('.')[0] + '.wav'
     # open the subprocess
@@ -12,6 +14,8 @@ def convert_mp3_to_wav(mp3_file_name, output_file_name=None):
     return new_file_name
 
 def convert_wav_to_mp3(wav_file_name, output_file_name=None):
+    # print the wav file name and the output file name
+    print(f'Converting {wav_file_name} to {output_file_name}')
     # create the new mp3 file name 
     new_file_name = output_file_name if output_file_name else wav_file_name.split('.')[0] + '.mp3'
     # open the subprocess

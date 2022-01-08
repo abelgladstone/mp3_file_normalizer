@@ -57,4 +57,4 @@ class BufferedWaveWriter:
         self.data = np.append(self.data, data)
     
     def __str__(self):
-        return f"BufferedWaveWriter({self.wave_file})"
+        return f"BufferedWaveWriter({self.wave_file}, Sample Rate: {self.sample_rate()})"

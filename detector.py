@@ -1,5 +1,11 @@
 import numpy as np
 from effect import Effect
+import logging
+
+# add a module level logger
+logger = logging.getLogger(__name__)
+# set the level of the logger
+logger.setLevel(logging.DEBUG)
 
 class DetectorBase(Effect):
 
@@ -9,6 +15,9 @@ class DetectorBase(Effect):
     
     def apply_effect(self, data):
         pass
+
+    def info_str(self) -> str:
+        return ''
 
 
 # A level detector class which inherits from the base class
@@ -33,6 +42,9 @@ class LevelDetector(DetectorBase):
             output[i] = self.alpha * self.prev_data + (1 - self.alpha) * sample
             self.prev_data = output[i]
         return output
+    
+    def info_str(self) -> str:
+        return 'LevelDetector'
 
 
 class RMSDetector(DetectorBase):
@@ -51,6 +63,9 @@ class RMSDetector(DetectorBase):
             output[i] = self.alpha * self.prev_data + (1 - self.alpha) * sample**2
             self.prev_data = output[i]
         return output
+    
+    def info_str(self) -> str:
+        return 'RMSDetector'
 
 
 class PeakDetector(DetectorBase):
@@ -76,6 +91,10 @@ class PeakDetector(DetectorBase):
             output[i] = self.release_constant * self.prev_data + (1 -self.attack_constant)*np.max(sample - self.prev_data, 0)
             self.prev_data = output[i]
         return output
+    
+    def info_str(self) -> str:
+        return 'PeakDetector'
+
     
 class LevelCorrectedPeakDetector(DetectorBase):
 
@@ -103,6 +122,9 @@ class LevelCorrectedPeakDetector(DetectorBase):
                 output[i] = self.release_constant*self.prev_data
             self.prev_data = output[i]
         return output
+    
+    def info_str(self) -> str:
+        return 'LevelCorrectedPeakDetector'
 
 
 class SmoothPeakDetector(DetectorBase):
@@ -111,6 +133,8 @@ class SmoothPeakDetector(DetectorBase):
         super().__init__(sample_rate)
         self.attack_time = attack_time
         self.release_time = release_time
+        self.ac = self.attack_constant
+        self.rc = self.release_constant
     
     @property
     def attack_constant(self):
@@ -122,15 +146,19 @@ class SmoothPeakDetector(DetectorBase):
     
     def apply_effect(self, data: np.ndarray):
         output = np.zeros_like(data)
-        for i in range(len(data)):
+        temp_data = np.abs(data)
+        L = len(data)
+        for i in range(L):
             # rectify the signal
-            diff = abs(data[i]) - self.prev_data
-            if diff > 0:
-                self.prev_data += self.attack_constant*diff
-            else:
-                self.prev_data += self.release_constant*diff
+            diff = temp_data[i] - self.prev_data
+            K = self.ac if diff > 0 else self.rc
+            self.prev_data = self.prev_data +  K*diff
             output[i] = self.prev_data
+            # log the 
         return output
+    
+    def info_str(self) -> str:
+        return 'SmoothPeakDetector'
 
 
 # a function to generate a square wave and return the data with a given sample rate and frequency
