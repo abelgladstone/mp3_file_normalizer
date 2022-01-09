@@ -1,6 +1,6 @@
 from effect import Effect
 import numpy as np
-import multiprocessing as mp
+
 
 class HardClip(Effect):
 

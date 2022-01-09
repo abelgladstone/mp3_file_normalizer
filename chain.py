@@ -1,6 +1,6 @@
 import numpy as np
 from compressor import StereoCompressor
-from normalize_process import Normalize, Trim
+from normalize import Normalize, Trim
 from mp3tools import convert_mp3_to_wav, convert_wav_to_mp3
 from clip import HardClip, SoftClip
 from wavetools import BufferedWaveReader, BufferedWaveWriter
