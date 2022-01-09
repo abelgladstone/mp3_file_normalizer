@@ -8,7 +8,7 @@ def convert_to_float64(data: np.ndarray) -> np.ndarray:
     elif data.dtype == np.int32:
         return np.float64(data) / 2147483647.0
     elif data.dtype == np.float32:
-        return data
+        return np.float64(data)
     elif data.dtype == np.float64:
         return data
     else:
