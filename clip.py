@@ -20,7 +20,7 @@ class SoftClip(Effect):
         # Hard clip the data
         clipped_data = HardClip().apply_effect(data)
         # apply the cubic function to smooth the clipped data
-        clipped_data = clipped_data - np.power(clipped_data, 3) / 3
+        clipped_data = clipped_data - (clipped_data**3)/3
         # return the rescaled clipped data
         return clipped_data * 1.5   
 
