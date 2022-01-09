@@ -41,7 +41,7 @@ class Normalize(Effect):
         # get the maximum absolute value of the data in a numpy array
         max_abs_data = np.max(np.abs(data))
         # normalize the data to the target volume
-        return data / max_abs_data * self._linear_gain
+        return (data / max_abs_data) * self._linear_gain
     
     def info_str(self) -> str:
         return str(self)

@@ -53,31 +53,33 @@ class MonoCompressor(Effect):
         self.knee_end_db = self.knee_db/2 + self.threshold_db
         # get the detector class from the detector type
         self.detector_class = self.detector_type.get_detector()
-        self.detector = self.detector_class(self.sample_rate, self.attack_msec/1000, self.release_msec/1000)
-        self.linear_makeup_gain = 10**(self.makeup_gain_db/20)
+        self.detector = [self.detector_class(self.sample_rate, self.attack_msec/1000, self.release_msec/1000)]
     
     def envelope(self, data: np.ndarray):
-        return self.detector.apply_effect(data)
+        return self.detector[0].apply_effect(data)
     
-    def _compute_compressor_gain_sample(self, input_envelope):
-        xg = np.log10(input_envelope + 0.000001)*20
-        if xg < self.knee_start_db:
-            yg = xg
-        elif self.knee_start_db < xg <= self.knee_end_db:
-            yg = xg + (self.iratio - 1) * (xg - self.threshold_db + self.knee_db/2)**2 / (2 * self.knee_db)
-        else:
-            yg = self.threshold_db + (xg - self.threshold_db) * self.iratio
-        return 10**((yg - xg)/20)
+    # a function to return the gain of the compressor in the knee region
+    def gain_knee_region(self, xg):
+        return xg + (self.iratio - 1) * (xg - self.threshold_db + self.knee_db/2)**2 / (2 * self.knee_db)
     
+    # a function to return the gain of the compressor in the compression region
+    def gain_compression_region(self, xg):
+        return self.threshold_db + (xg - self.threshold_db) * self.iratio
+
     def compute_compressor_gain(self, envelope: np.ndarray):
-        # Computer the gain from the envelope and return the array of gains
-        vector_func = np.vectorize(self._compute_compressor_gain_sample)
-        return vector_func(envelope)
+        xg = np.log10(envelope + 0.000001)*20
+        yg = xg
+        # use numpy where to compute the gain
+        compression_indices = np.argwhere(xg > self.knee_end_db)
+        knee_indices = np.argwhere( (self.knee_start_db < xg) & (xg <= self.knee_end_db))
+        yg[compression_indices] = self.gain_compression_region(xg[compression_indices])
+        yg[knee_indices] = self.gain_knee_region(xg[knee_indices])
+        return 10**((yg - xg + self.makeup_gain_db) / 20)
     
     def apply_effect(self, data: np.ndarray) -> np.ndarray:
         envelope = self.envelope(data)
         gain = self.gain(envelope)
-        return gain * data * self.linear_makeup_gain
+        return gain * data
     
     def info_str(self) -> str:
         return 'Mono Compressor'
@@ -89,23 +91,12 @@ class StereoCompressor(MonoCompressor):
     RIGHT = 1
 
     def __post_init__(self):
-        if self.threshold_db > 0:
-            self.threshold_db = 0
-        if self.ratio < 1:
-            self.ratio = 1
-        if self.knee_db < 0:
-            self.knee_db = 0
-        self.iratio = 1 / self.ratio
-        self.knee_start_db = -self.knee_db/2 + self.threshold_db
-        self.knee_end_db = self.knee_db/2 + self.threshold_db
-        self.detector_class = self.detector_type.get_detector()
-        self.detector = [self.detector_class(self.sample_rate, self.attack_msec/1000, self.release_msec/1000) for i in range(2)]
-        self.linear_makeup_gain = 10**(self.makeup_gain_db/20)
+        super().__post_init__()
+        self.detector.append(self.detector_class(self.sample_rate, self.attack_msec/1000, self.release_msec/1000))
     
     def apply_detector_channel(self, data: np.ndarray, channel: int):
         # apply the detector to the channel
-        envelope = self.detector[channel].apply_effect(data)
-        return envelope
+        return self.detector[channel].apply_effect(data)
 
     def apply_effect(self, data: np.ndarray) -> np.ndarray:
         # check if the data is stereo
@@ -115,9 +106,13 @@ class StereoCompressor(MonoCompressor):
         pool = mp.Pool(2)
         # apply the effect to each channel using the pool of workers asynchronously
         results = pool.starmap(self.apply_detector_channel, [(data[:,i], i) for i in range(2)])
+        # close the pool of workers
+        pool.close()
+        # join the pool of workers
+        pool.join()
         # get the max of the left and right envelopes
         envelope = np.maximum(results[StereoCompressor.LEFT], results[StereoCompressor.RIGHT])
-        gain = self.compute_compressor_gain(envelope) * self.linear_makeup_gain
+        gain = self.compute_compressor_gain(envelope)
         # make a gain a single dimension array
         gain = np.reshape(gain, (len(gain), 1))
         return gain * data

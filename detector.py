@@ -147,12 +147,14 @@ class SmoothPeakDetector(DetectorBase):
         L = len(data)
         A = self.attack_constant
         B = self.release_constant
+        temp = self.prev_data
         for i in range(L):
             # rectify the signal
-            diff = abs(data[i]) - self.prev_data
+            diff = abs(data[i]) - temp
             K = A if diff > 0 else B
-            self.prev_data +=  K*diff
-            output[i] = self.prev_data
+            output[i] +=  K*diff
+            temp = output[i]
+        self.prev_data = temp
         return output
     
     def info_str(self) -> str:
