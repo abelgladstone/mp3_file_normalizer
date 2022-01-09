@@ -47,14 +47,17 @@ class BufferedWaveWriter:
         self.wave_file = wave_file
         self.sample_rate = sample_rate
         # Initialize the data as a empty np array
-        self.data = np.array([])
+        self.data = None
 
     def write(self):
         wavfile.write(self.wave_file, self.sample_rate, self.data)
         self.data = []
     
     def append(self, data: np.ndarray):
-        self.data = np.append(self.data, data)
+        if self.data is None:
+            self.data = data
+        else:
+            self.data = np.append(self.data, data, axis=0)
     
     def __str__(self):
         return f"BufferedWaveWriter({self.wave_file}, Sample Rate: {self.sample_rate()})"

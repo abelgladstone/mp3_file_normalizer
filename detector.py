@@ -133,8 +133,6 @@ class SmoothPeakDetector(DetectorBase):
         super().__init__(sample_rate)
         self.attack_time = attack_time
         self.release_time = release_time
-        self.ac = self.attack_constant
-        self.rc = self.release_constant
     
     @property
     def attack_constant(self):
@@ -146,15 +144,15 @@ class SmoothPeakDetector(DetectorBase):
     
     def apply_effect(self, data: np.ndarray):
         output = np.zeros_like(data)
-        temp_data = np.abs(data)
         L = len(data)
+        A = self.attack_constant
+        B = self.release_constant
         for i in range(L):
             # rectify the signal
-            diff = temp_data[i] - self.prev_data
-            K = self.ac if diff > 0 else self.rc
-            self.prev_data = self.prev_data +  K*diff
+            diff = abs(data[i]) - self.prev_data
+            K = A if diff > 0 else B
+            self.prev_data +=  K*diff
             output[i] = self.prev_data
-            # log the 
         return output
     
     def info_str(self) -> str:

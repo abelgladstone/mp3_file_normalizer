@@ -8,35 +8,21 @@ class HardClip(Effect):
         return np.clip(data, -1, 1)
     
     def __str__(self) -> str:
-        return self.info_str()
+        return "Hard Clip"
+    
+    def info_str(self) -> str:
+        return "Hard Clip"
 
 
 class SoftClip(Effect):
 
-    MAX_SAMPLE = 2/3
-    MIN_SAMPLE = -2/3
-
-    # a method to apply the effect to the data
-    @staticmethod
-    def apply_sample(sample: float) -> float:
-        #apply the cubic function for each sample
-        if sample < -1:
-            return SoftClip.MIN_SAMPLE
-        elif sample > 1:
-            return SoftClip.MAX_SAMPLE
-        else:
-            return sample - sample**3/3
-
     def apply_effect(self, data: np.ndarray) -> np.ndarray:
-        # make pool of workers
-        pool = mp.Pool(mp.cpu_count())
-        # apply the effect to each sample
-        output = pool.map(SoftClip.apply_sample, data)
-        # close the pool
-        pool.close()
-        # wait for the pool to finish
-        pool.join()
-        return np.array(output)
+        # Hard clip the data
+        clipped_data = HardClip().apply_effect(data)
+        # apply the cubic function to smooth the clipped data
+        clipped_data = clipped_data - np.power(clipped_data, 3) / 3
+        # return the rescaled clipped data
+        return clipped_data * 1.5   
 
     def info_str(self) -> str:
         return "SoftClip"
