@@ -1,12 +1,12 @@
-from effect import Effect
+from .effect import Effect
 import numpy as np
 
 # a function to convert a numpy array from any format to a float64 format
 def convert_to_float64(data: np.ndarray) -> np.ndarray:
     if data.dtype == np.int16:
-        return np.float64(data) / 32767.0
+        return data.astype(np.float64) / 32767.0
     elif data.dtype == np.int32:
-        return np.float64(data) / 2147483647.0
+        return data.astype(np.float64) / 2147483647.0
     elif data.dtype == np.float32:
         return np.float64(data)
     elif data.dtype == np.float64:
@@ -17,13 +17,13 @@ def convert_to_float64(data: np.ndarray) -> np.ndarray:
 # a function to convert a numpy array from any format to a float32 format
 def convert_to_float32(data: np.ndarray) -> np.ndarray:
     if data.dtype == np.int16:
-        return np.float32(data) / 32767.0
+        return data.astype(np.float32) / 32767.0
     elif data.dtype == np.int32:
-        return np.float32(data) / 2147483647.0
+        return data.astype(np.float32) / 2147483647.0
     elif data.dtype == np.float32:
         return data
     elif data.dtype == np.float64:
-        return np.float32(data) / float(np.iinfo(np.int32).max)
+        return np.float32(data)
     else:
         raise TypeError(f"Unsupported data type: {data.dtype}")
 

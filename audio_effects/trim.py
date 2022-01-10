@@ -1,5 +1,5 @@
 import numpy as np
-from effect import Effect
+from .effect import Effect
 
 # class to trim the audio data in the wave file that has zeros at the beginning and end
 class Trim(Effect):

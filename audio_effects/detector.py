@@ -1,5 +1,5 @@
 import numpy as np
-from effect import Effect
+from .effect import Effect
 import logging
 
 # add a module level logger
@@ -113,9 +113,10 @@ class LevelCorrectedPeakDetector(DetectorBase):
     
     def apply_effect(self, data: np.ndarray):
         output = np.zeros_like(data)
-        for i, sample in enumerate(data):
+        L = len(data)
+        for i in range(L):
             # rectify the signal
-            sample = abs(sample)
+            sample = abs(data[i])
             if sample > self.prev_data:
                 output[i] = self.attack_constant*self.prev_data + (1 - self.attack_constant)*sample
             else:
@@ -147,14 +148,11 @@ class SmoothPeakDetector(DetectorBase):
         L = len(data)
         A = self.attack_constant
         B = self.release_constant
-        temp = self.prev_data
         for i in range(L):
-            # rectify the signal
-            diff = abs(data[i]) - temp
+            diff = abs(data[i]) - self.prev_data
             K = A if diff > 0 else B
-            output[i] +=  K*diff
-            temp = output[i]
-        self.prev_data = temp
+            self.prev_data += K*diff
+            output[i] = self.prev_data
         return output
     
     def info_str(self) -> str:
@@ -179,6 +177,16 @@ def generate_sine_wave(sample_rate, frequency, duration):
     data = np.sin(2 * np.pi * frequency * time)
     return data
 
+# a function to generate a random signal and return the data with a given sample rate, amplitude, and duration
+def generate_random_signal(sample_rate, amplitude, duration):
+    # generate the data
+    data = np.random.rand(int(sample_rate*duration))
+    # scale the data to be between -1 and 1
+    data = data * 2 - 1
+    # scale the data to be between -amplitude and amplitude
+    data = data * amplitude
+    return data
+
 
 # A function called main
 def main():
@@ -187,13 +195,13 @@ def main():
     attack_time = 0.001
     release_time = 0.25
     # time T is 1 second
-    T = 1
+    T = 10
     # set the sample rate
     sample_rate = 44100
     # generate the time
     time = np.linspace(0, T, sample_rate*T)
     # Generate an input square wave with a frequency of 10 Hz
-    data = generate_sine_wave(sample_rate, 10, T)
+    data = generate_random_signal(sample_rate, 1, T)
     # mutiply half of the data by 0.001
     half_data_index = int(len(data)/2)
     data[-half_data_index:] = data[-half_data_index:] * 0.1

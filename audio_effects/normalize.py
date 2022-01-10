@@ -2,7 +2,7 @@ from numpy.core.fromnumeric import nonzero
 from scipy.io import wavfile
 import numpy as np
 
-from effect import Effect
+from .effect import Effect
 
 
 #function to export a wave file with a given numpy array, filename and sample rate using scipy

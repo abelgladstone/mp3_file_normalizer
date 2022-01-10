@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from detector import DetectorBase, LevelCorrectedPeakDetector, LevelDetector, PeakDetector, RMSDetector, SmoothPeakDetector
-from effect import Effect
+from .detector import DetectorBase, LevelCorrectedPeakDetector, LevelDetector, PeakDetector, RMSDetector, SmoothPeakDetector
+from .effect import Effect
 import numpy as np
 from enum import Enum
 import multiprocessing as mp

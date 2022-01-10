@@ -1,4 +1,4 @@
-from effect import Effect
+from .effect import Effect
 import numpy as np
 
 
