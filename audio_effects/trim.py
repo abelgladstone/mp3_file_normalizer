@@ -5,6 +5,7 @@ from .effect import Effect
 class Trim(Effect):
 
     def apply_effect(self, data: np.ndarray) -> np.ndarray:
+        data = self.reshape_to_2d_array(data)
         # find the number of channels in the data
         num_channels = data.shape[1]
         # find the index of the first non-zero value in the data in each channel
