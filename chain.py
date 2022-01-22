@@ -5,7 +5,7 @@ from audio_effects.trim import Trim
 from mp3tools import convert_mp3_to_wav, convert_wav_to_mp3
 from audio_effects.clip import SoftClip
 from wavetools import BufferedWaveReader, BufferedWaveWriter
-from audio_effects.audioformat import Float32, Float64, Int32
+from audio_effects.audioformat import Float64, Int16
 import time
 
 
@@ -16,12 +16,12 @@ compressor_config = {
     'threshold_db': -12.04,
     'ratio': float('inf'),
     'knee_db': 1,
-    'makeup_gain_db': 0,
+    'makeup_gain_db': 10,
     'sample_rate': 44100,
 }
 
 normalize_config = {
-    'target_db': -3,
+    'target_db': 0,
 }
 
 # function to apply the effects to a wave file
@@ -30,10 +30,10 @@ def apply_effects(input_wavefile, output_wavefile):
     compressor_config['sample_rate'] = reader.sample_rate()
     operators = (Float64(), 
                 Trim(), 
-                StereoCompressor(**compressor_config), 
-                Normalize(**normalize_config), 
+                Normalize(**normalize_config),
+                #StereoCompressor(**compressor_config), 
                 SoftClip(),
-                Int32())
+                Int16())
     writer = BufferedWaveWriter(output_wavefile, reader.sample_rate())
     data = reader.data
     for operator in operators:
@@ -49,7 +49,7 @@ def apply_effects(input_wavefile, output_wavefile):
 # a function called main to run the program
 def main():
     # convert the mp3 file to a wav file
-    convert_mp3_to_wav('GT2021-12-20.mp3', 'test.wav')
+    #convert_mp3_to_wav('GT2021-12-20.mp3', 'test.wav')
     # apply the effects to the wav file
     apply_effects('test.wav', 'test_out.wav')
     # convert the wav file back to an mp3 file
@@ -61,6 +61,7 @@ def main():
 # a function to prepare a wave data by downsampling by a given factor
 def downsample_wave(data, factor):
     # use the numpy array method reshape to downsample the data
+    print(data.dtype)
     data = Float64().apply_effect(data)
     # by the given factor
     len = data.shape[0]
@@ -71,7 +72,6 @@ def downsample_wave(data, factor):
     data = data.reshape((len // factor, factor))
     # take the mean of each row to get the downsampled data
     data = np.mean(data, axis=1)
-    # make the data in the range [-1, 1]
     return data
 
 

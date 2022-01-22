@@ -5,7 +5,7 @@ import numpy as np
 class Effect(abc.ABC):
     
     @abc.abstractmethod
-    def apply_effect(self, data: np.ndarray, **kwargs) -> np.ndarray:
+    def apply_effect(self, sound_data: np.ndarray, **kwargs) -> np.ndarray:
         """ Apply the effect to the data """
     
     def info_str(self) -> str:
