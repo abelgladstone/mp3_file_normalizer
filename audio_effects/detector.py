@@ -11,8 +11,12 @@ class DetectorBase(Effect):
 
     def __init__(self, sample_rate) -> None:
         self.sample_rate = sample_rate
-        self.prev_data = 0
+        self.reset()
     
+    def reset(self):
+        self.prev_data = 0
+        return super().reset()
+
     def apply_effect(self, data):
         pass
 
