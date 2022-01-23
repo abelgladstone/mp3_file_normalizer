@@ -38,10 +38,16 @@ class Normalize(Effect):
         return f"Normalize({self.target_db} dbFS)"
 
     def apply_effect(self, data: np.ndarray) -> np.ndarray:
-        # get the maximum absolute value of the data in a numpy array
-        max_abs_data = np.max(np.abs(data))
-        # normalize the data to the target volume
-        return (data / max_abs_data) * self._linear_gain
+        # reshae the data to be a 2D array
+        data = self.reshape_to_2d_array(data)
+        # get the max value of the data from each channel
+        max_values = np.max(np.abs(data), axis=1)
+        # get the max value from max_values
+        max_value = np.max(max_values)
+        # normalize the data by the max value
+        normalized_data = data / max_value * self._linear_gain
+        # return the normalized data
+        return normalized_data
     
     def info_str(self) -> str:
         return str(self)

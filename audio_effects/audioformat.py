@@ -43,7 +43,7 @@ def convert_to_int16(data: np.ndarray) -> np.ndarray:
 # a function to convert a numpy array from any format to a int32 format
 def convert_to_int32(data: np.ndarray) -> np.ndarray:
     if data.dtype == np.int16:
-        return np.int32(data << 16)
+        return np.int32(data) << 16
     elif data.dtype == np.int32:
         return data
     elif data.dtype == np.float32:

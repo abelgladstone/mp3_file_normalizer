@@ -8,6 +8,10 @@ class Effect(abc.ABC):
     def apply_effect(self, sound_data: np.ndarray, **kwargs) -> np.ndarray:
         """ Apply the effect to the data """
     
+    def reset(self):
+        """ Resets the effect """
+        pass
+    
     def info_str(self) -> str:
         """ Returns a string with information about the effect """
         return ''
@@ -20,3 +24,4 @@ class Effect(abc.ABC):
         """ Reshapes the data to a 2D array """
         if len(data.shape) == 1:
             return data.reshape(-1, 1)
+        return data
