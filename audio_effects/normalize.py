@@ -41,7 +41,7 @@ class Normalize(Effect):
         # reshae the data to be a 2D array
         data = self.reshape_to_2d_array(data)
         # get the max value of the data from each channel
-        max_values = np.max(np.abs(data), axis=1)
+        max_values = np.max(np.abs(data), axis=0)
         # get the max value from max_values
         max_value = np.max(max_values)
         # normalize the data by the max value

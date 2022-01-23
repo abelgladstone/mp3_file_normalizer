@@ -3,7 +3,7 @@ from audio_effects.compressor import StereoCompressor
 from audio_effects.normalize import Normalize, read_wave
 from audio_effects.trim import Trim
 from mp3tools import convert_mp3_to_wav, convert_wav_to_mp3
-from audio_effects.clip import SoftClip
+from audio_effects.clip import FullScaleSoftClip as SoftClip
 from wavetools import BufferedWaveReader, BufferedWaveWriter
 from audio_effects.audioformat import Float64, Int16
 import time
@@ -31,8 +31,8 @@ def apply_effects(input_wavefile, output_wavefile):
     operators = (Float64(), 
                 Trim(), 
                 Normalize(**normalize_config),
-                #StereoCompressor(**compressor_config), 
-                SoftClip(),
+                StereoCompressor(**compressor_config), 
+                SoftClip(smoothing_radius=0.05),
                 Int16())
     writer = BufferedWaveWriter(output_wavefile, reader.sample_rate())
     data = reader.data
@@ -42,7 +42,7 @@ def apply_effects(input_wavefile, output_wavefile):
         data = operator.apply_effect(data)
         # store the time after the operator
         end_time = time.time()
-        print(f'{operator.info_str()} took {end_time - start_time:.2f} seconds')
+        print(f'{operator.__class__} took {end_time - start_time:.2f} seconds')
     writer.append(data)
     writer.write()
 
@@ -106,7 +106,7 @@ app.layout = html.Div([
 )
 def update_wave_plot(input_file):
     # read the wave file
-    fs, data = read_wave(input_file)
+    fs, data = read_wave('test.wav')
     # downsample the wave file by a factor of 48
     data = downsample_wave(data[:,0], 48)
     # create the figure
@@ -114,6 +114,10 @@ def update_wave_plot(input_file):
     # create the time axis
     time = np.arange(0, len(data)) / fs / 48
     # plot the wave file
+    fig.add_trace(go.Scatter(x=time, y=data))
+    fs, data = read_wave('test_out.wav')
+    data = downsample_wave(data[:,0], 48)
+    time = np.arange(0, len(data)) / fs / 48
     fig.add_trace(go.Scatter(x=time, y=data))
     # set the layout
     fig.update_layout(
