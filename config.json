@@ -1,0 +1,9 @@
+{
+    "amplify": {
+        "gain_dB": -3
+    },
+    "normalize": {
+        "target_dB": -1
+    },
+    "clip_type": "Soft"
+}

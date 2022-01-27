@@ -9,7 +9,7 @@ class TestNormalize(unittest.TestCase):
         # create a random array of floats between -0.5 and 0.5
         data = (np.random.random(10000) - 0.5) * 2
         # create a normalize object
-        normalize_obj = Normalize(target_db=0)
+        normalize_obj = Normalize(target_dB=0)
         # apply the normalize audio effect to the data
         normalize_data = normalize_obj.apply_effect(data)
         # check that the data is between -1 and 1
@@ -17,7 +17,7 @@ class TestNormalize(unittest.TestCase):
         # check that the data is not all zeros
         self.assertFalse(np.all(normalize_data == 0))
         # create a new normalize object
-        normalize_obj = Normalize(target_db=-10)
+        normalize_obj = Normalize(target_dB=-10)
         # apply the normalize audio effect to the data
         normalize_data = normalize_obj.apply_effect(data)
         # check that the max data is -10 dBFS
@@ -28,7 +28,7 @@ class TestNormalize(unittest.TestCase):
         # create a random array of floats between -0.5 and 0.5 for 4 channels
         data = (np.random.random((10000, 4)) - 0.5) * 2
         # create a normalize object
-        normalize_obj = Normalize(target_db=0)
+        normalize_obj = Normalize(target_dB=0)
         # apply the normalize audio effect to the data
         normalize_data = normalize_obj.apply_effect(data)
         # check that the data is between -1 and 1
@@ -36,7 +36,7 @@ class TestNormalize(unittest.TestCase):
         # check that the data is not all zeros
         self.assertFalse(np.all(normalize_data == 0))
         # create a new normalize object
-        normalize_obj = Normalize(target_db=-10)
+        normalize_obj = Normalize(target_dB=-10)
         # apply the normalize audio effect to the data
         normalize_data = normalize_obj.apply_effect(data)
         # check that the max data is -10 dBFS

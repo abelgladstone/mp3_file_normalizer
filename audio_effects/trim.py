@@ -17,6 +17,9 @@ class Trim:
             # find the index of the last non-zero value in the data in each channel
             end_index = max(end_index, np.nonzero(data[:, channel])[0][-1])
         # trim the data to the start and end index
-        return data[start_index:end_index + 1, :]   
+        return data[start_index:end_index + 1, :]
+    
+    def info_str(self) -> str:
+        return 'Trim'
 
 
